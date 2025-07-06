@@ -2,6 +2,7 @@ import express, { Request, Response, Router } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import path, { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import cors from "cors";
 
 
 import { existsSync } from 'fs';
@@ -31,6 +32,7 @@ if (isProd) {
     router[resolver.method](resolver.route, resolver.handler);
   });
 
+  app.use(cors());
   app.use(router);
 
   app.use('/data', express.static(join(__dirname, '../data')));
