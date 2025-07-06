@@ -1,15 +1,17 @@
 import express from "express";
 import multer from "multer";
+import {extname} from "path";
 import { queryImages } from "./query.ts";
 import { listFiles } from "./utils/util.ts";
 import { indexImages } from "./indexImages.ts";
 import { upsertImages } from "./upsertImages.js";
 import { deleteImage } from "./deleteImage.js";
+import { upload } from "./middlewares/fileUpload.ts";
 
 interface Route {
   route: string;
   method: "get" | "post" | "put" | "delete";
-  handler: (req: express.Request, res: express.Response) => void;
+  handler: (req: express.Request, res: express.Response , next: express.NextFunction) => void;
 }
 
 function getImagesInRange(
@@ -23,8 +25,15 @@ function getImagesInRange(
   return imagePaths.slice(start, end);
 }
 
-// Save newly uploaded images to the data directory
-const upload = multer({ dest: "data/" }).array("images");
+// // Save newly uploaded images to the data directory
+// const upload = multer({ dest: "data/" }).array("images");
+// const memoryUpload = multer({ storage: multer.memoryStorage() }).array(
+//   "images"
+// );
+
+const solve = async(req:express.Request,res: express.Response) => {
+  res.status(200);
+};
 
 const routes: Route[] = [
   {
@@ -70,6 +79,7 @@ const routes: Route[] = [
         const matchingImages = await queryImages(imagePath);
         res.status(200).json(matchingImages);
       } catch (error) {
+        console.error(error);
         res.status(500).json({ error: "Error fetching images" });
       }
     },
@@ -77,9 +87,11 @@ const routes: Route[] = [
   {
     route: "/uploadImages",
     method: "post",
-    handler: async (req, res) => {
+    handler: async (req, res , next) => {
+      // Use multer's single-file memory storage to access original file data
       upload(req, res, async (err) => {
         if (err) {
+          console.error(err);
           res.status(500).json({ error: "Error uploading images" });
           return;
         }
@@ -88,24 +100,31 @@ const routes: Route[] = [
           res.status(400).json({ error: "No files uploaded" });
           return;
         }
+        res.status(200).send("uploaded images");
+        // Save files with original name in ./data
+        // const uploadedImagePaths: string[] = [];
+        // for (const file of req.files as Express.Multer.File[]) {
+        //   // const destPath = path.join("./data", Date.now()+extname(file.originalname));
+        //   // await fs.writeFile(destPath, file.buffer);
+        //   uploadedImagePaths.push(destPath);
+        // }
 
-        const uploadedImagePaths = (req.files as Express.Multer.File[]).map(
-          (file) => file.path
-        );
-
-        try {
-          await upsertImages(uploadedImagePaths);
-          // Return the page number of the first image uploaded (for demo purposes)
-          const imagePaths = await listFiles("./data");
-          const pageSize = parseInt(req.query.pageSize as string, 10) || 10;
-          const pageOfFirstImage =
-            Math.floor(imagePaths.indexOf(uploadedImagePaths[0]) / pageSize) +
-            1;
-          res.status(200).json({ pageOfFirstImage });
-        } catch (error) {
-          res.status(500).json({ error: "Error uploading images" });
-        }
-      });
+        // try {
+        //   // await upsertImages(uploadedImagePaths);
+        //   // Return the page number of the first image uploaded (for demo purposes)
+        //   const imagePaths = await listFiles("./data");
+        //   const pageSize = parseInt(req.query.pageSize as string, 10) || 10;
+        //   const pageOfFirstImage =
+        //     Math.floor(imagePaths.indexOf(uploadedImagePaths[0]) / pageSize) +
+        //     1;
+        //   res.status(200).json({ pageOfFirstImage });
+        // } catch (error) {
+        //   res.status(500).json({ error: "Error uploading images" });
+        // }
+      },
+     
+      
+    );
     },
   },
   {
