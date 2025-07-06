@@ -1,5 +1,5 @@
 import fs from "fs/promises";
-import path from "path";
+import path,{ extname } from "path";
 import * as dotenv from "dotenv";
 
 dotenv.config();
@@ -41,4 +41,21 @@ const validateEnvironmentVariables = () => {
   getEnv("PINECONE_REGION");
 };
 
-export { listFiles, sliceIntoChunks, validateEnvironmentVariables };
+
+
+interface File {
+    originalname: string;
+    mimetype: string;
+}
+
+const validateFile = (file: File) => {
+    const fileTypes = /jpeg|jpg|png|gif|pdf|ppt|csv/;
+    const fileExtname = fileTypes.test(extname(file.originalname).toLowerCase());
+    const mimetype = fileTypes.test(file.mimetype);
+    return fileExtname && mimetype;
+};
+
+
+
+
+export { listFiles, sliceIntoChunks, validateEnvironmentVariables , validateFile };
