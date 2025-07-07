@@ -1,5 +1,4 @@
 import multer from "multer";
-import { extname } from "path";
 import { validateFile } from "../utils/util.ts";
 
 const storage = multer.diskStorage({
@@ -20,10 +19,10 @@ const upload = multer({
         if (isFileTyeAllowed) {
             cb(null, true);
         } else {
-            cb(new Error('File format not supported(only jpeg, jpg, png, gif, pdf, ppt, csv)'));
+            cb(new Error('File format not supported(only jpeg, jpg, png)'));
         }
     }
     
-}).array('images', 1);
+}).array('images', 10);
 
 export {upload};
