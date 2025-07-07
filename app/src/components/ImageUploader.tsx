@@ -32,19 +32,21 @@ export default function Dropzone({
           max={10}
           disabled={loading}
         />
-        <label
-          htmlFor="id-dropzone02"
-          className="flex cursor-pointer w-3/4 flex-col items-center gap-6 rounded border border-dashed border-slate-300 px-6 py-10 text-center min-h-[250px] justify-center"
+
+        <div
+         className="flex relative w-3/4 flex-col items-center gap-6 rounded border border-dashed border-slate-300 py-3 text-center min-h-[250px] justify-center"
         >
-          {preview && (
-            <div className="flex flex-col items-center w-full relative">
+          {
+            preview 
+            &&
+            (
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleDelete();
                 }}
-                className="mb-2 self-end text-slate-400 hover:text-red-500 absolute "
+                className="absolute top-10 right-10 z-10 mb-2 text-slate-400 hover:text-red-500"
                 aria-label="Delete image"
                 tabIndex={-1}
               >
@@ -63,10 +65,20 @@ export default function Dropzone({
                   />
                 </svg>
               </button>
+            )
+          }
+             
+          <label
+          htmlFor="id-dropzone02"
+          className="flex cursor-pointer w-3/4 flex-col items-center text-center min-h-[250px] justify-center"
+        >
+          {preview && (
+            <div className="flex flex-col items-center w-full ">
+              
               <img
                 src={preview}
                 alt="Preview"
-                className="max-h-80 rounded shadow object-contain mb-2"
+                className="max-h-80 rounded shadow object-contain "
               />
             </div>
           )}
@@ -117,6 +129,8 @@ export default function Dropzone({
             </>
           )}
         </label>
+        </div>
+        
       </div>
     </>
   );
